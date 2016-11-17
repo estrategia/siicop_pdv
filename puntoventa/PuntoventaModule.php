@@ -5,7 +5,10 @@ class PuntoventaModule extends CWebModule {
     public $uploadImg = '/images/puntosventa/';
     public $iconImg = '/images/image_sticker.png';
     public $modelImg = '/images/modeloPuntosDeVenta.png';
-    public $sessionModelPVExport = 'puntoventaexport';
+    public $session = array(
+        'modelPdvExport' => 'puntoventa.puntoventaExport',
+        'modelReporteHorarioEspecial' => 'puntoventa.horarioEspecialExport'
+    );
     public $uploadMasivo = '/cargueInfluencia/';
     public $optPretty = array(
         "slideshow" => 5000,
@@ -82,15 +85,14 @@ class PuntoventaModule extends CWebModule {
                 ->registerCssFile($this->_assetsUrl . '/css/opa-icons.css')
                 ->registerCssFile($this->_assetsUrl . '/css/prettyPhoto.css')
                 ->registerCssFile($this->_assetsUrl . '/css/puntoventa.css')
+                ->registerCssFile($this->_assetsUrl .'/css/sectores.css')
                 //->registerCssFile($this->_assetsUrl . '/libs/jquery-timepicker-1.3.2/jquery.timepicker.css')
                 ->registerScriptFile($this->_assetsUrl . '/js/jquery.prettyPhoto.js', CClientScript::POS_END)
                 ->registerScriptFile($this->_assetsUrl . '/js/bootstrap-typeahead.js', CClientScript::POS_END)
                 //->registerScriptFile($this->_assetsUrl . '/libs/jquery-timepicker-1.3.2/jquery.timepicker.js', CClientScript::POS_END)
-                ->registerScriptFile($this->_assetsUrl . '/js/puntoventa.js', CClientScript::POS_END);
+                ->registerScriptFile($this->_assetsUrl . '/js/puntoventa.js', CClientScript::POS_END)
+        		->registerScriptFile($this->_assetsUrl .'/js/sectores.js', CClientScript::POS_BEGIN);
 
-		Yii::app()->clientScript->registerCssFile($this->_assetsUrl .'/css/sectores.css');
-				Yii::app()->clientScript->registerScriptFile($this->_assetsUrl .'/js/sectores.js', CClientScript::POS_BEGIN);
-				
         $this->setImport(array(
             'application.models.*',
             'application.components.*',
