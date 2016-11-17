@@ -77,7 +77,7 @@ class SwebController extends CController {
         //$condiciones['nomzona']['like'] = true;
         //$condiciones['ordenar'] = 'IDComercial';
 
-        $client = new SoapClient('http://localhost/copservir/puntoventa/sweb/puntoventa');
+        $client = new SoapClient('http://sii.copservir.com/puntoventa/sweb/puntoventa');
         $arr = $client->getPuntoVenta($condiciones);
         if ($arr === null) {
             echo "NULL ERROR";
