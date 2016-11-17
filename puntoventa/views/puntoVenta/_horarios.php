@@ -109,6 +109,99 @@
     </table>
 </div>
 
+<?php if (!empty($model->getHorariosEspecialesDia())): ?>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title text-center">Horarios especiales d&iacute;as espec&iacute;ficos</h3>
+        </div>
+        <div class="panel-body">
+            <div class="grid-view">
+                <table class="items">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Inicio (24hrs)</th>
+                            <th>Fin (24hrs)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($model->getHorariosEspecialesDia() as $idx => $objHorarioDia): ?>
+                            <tr class="<?php echo ($idx % 2 == 0) ? "odd" : "even" ?>">
+                                <td><?php echo $objHorarioDia->Fecha ?></td>
+                                <?php if ($objHorarioDia->Es24Horas == "SI"): ?>
+                                    <td class="text-center">24 Horas</td>
+                                    <td class="text-center">24 Horas</td>
+                                <?php else: ?>
+                                    <td class="text-center"><?php echo $objHorarioDia->HoraInicio ?></td>
+                                    <td class="text-center"><?php echo $objHorarioDia->HoraFin ?></td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if (!empty($model->getHorariosEspecialesRango())): ?>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title text-center">Horarios especiales rango de fecha</h3>
+        </div>
+        <div class="panel-body">
+            <div class="grid-view">
+                <table class="items">
+                    <thead>
+                        <tr>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Inicio Lunes a Sabado</th>
+                            <th>Fin Lunes a Sabado</th>
+                            <th>Inicio Domingo</th>
+                            <th>Fin Domingo</th>                    
+                            <th>Inicio Festivo</th>
+                            <th>Fin Festivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($model->getHorariosEspecialesRango() as $idx => $objHorarioRango): ?>
+                            <tr class="<?php echo ($idx % 2 == 0) ? "odd" : "even" ?>">
+                                <td><?php echo $objHorarioRango->FechaInicio ?></td>
+                                <td><?php echo $objHorarioRango->FechaFin ?></td>
+
+                                <?php if ($objHorarioRango->Es24HorasLunesASabado == "SI"): ?>
+                                    <td class="text-center">24 Horas</td>
+                                    <td class="text-center">24 Horas</td>
+                                <?php else: ?>
+                                    <td class="text-center"><?php echo $objHorarioRango->HoraInicioLunesASabado ?></td>
+                                    <td class="text-center"><?php echo $objHorarioRango->HoraFinLunesASabado ?></td>
+                                <?php endif; ?>
+
+                                <?php if ($objHorarioRango->Es24HorasDomingo == "SI"): ?>
+                                    <td class="text-center">24 Horas</td>
+                                    <td class="text-center">24 Horas</td>
+                                <?php else: ?>
+                                    <td class="text-center"><?php echo $objHorarioRango->HoraInicioDomingo ?></td>
+                                    <td class="text-center"><?php echo $objHorarioRango->HoraFinDomingo ?></td>
+                                <?php endif; ?>
+
+                                <?php if ($objHorarioRango->Es24HorasFestivo == "SI"): ?>
+                                    <td class="text-center">24 Horas</td>
+                                    <td class="text-center">24 Horas</td>
+                                <?php else: ?>
+                                    <td class="text-center"><?php echo $objHorarioRango->HoraInicioFestivo ?></td>
+                                    <td class="text-center"><?php echo $objHorarioRango->HoraFinFestivo ?></td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div class="row">
     <div class="footer">
         <ul class="pager">

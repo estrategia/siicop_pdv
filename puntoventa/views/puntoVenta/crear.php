@@ -20,7 +20,7 @@ $this->widget('zii.widgets.jui.CJuiTabs', array(
     'tabs' => array(
         'Info. B&aacute;sica' => array(
             'id' => 'puntoventa_tab_' . Yii::app()->controller->module->infoBasica,
-            'content' => $this->renderPartial("_infobasica", array('model' => $model,'consulta' => false, 'tab' => Yii::app()->controller->module->infoBasica, 'active' => true), true),
+            'content' => $this->renderPartial("_infobasica", array('model' => $model, 'consulta' => false, 'tab' => Yii::app()->controller->module->infoBasica, 'active' => true), true),
             'label' => 'Prueba2'
         ),
         'Directorio' => array(

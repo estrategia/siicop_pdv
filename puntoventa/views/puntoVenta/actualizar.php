@@ -40,7 +40,7 @@ $this->widget('zii.widgets.jui.CJuiTabs', array(
         ),
         'Horarios' => array(
             'id' => 'puntoventa_tab_' . Yii::app()->controller->module->infoHorarios,
-            'content' => $this->renderPartial("_horarios", array('consulta' => $consulta, 'model' => $model, 'tab' => Yii::app()->controller->module->infoHorarios, 'active' => $active == Yii::app()->controller->module->infoHorarios ? true : false), true),
+            'content' => $this->renderPartial("_horarios", array('consulta' => $zona===null, 'model' => $model, 'tab' => Yii::app()->controller->module->infoHorarios, 'active' => $active == Yii::app()->controller->module->infoHorarios ? true : false), true),
         ),
         'Empleados' => array(
             'id' => 'puntoventa_tab_' . Yii::app()->controller->module->infoEmpleados,
