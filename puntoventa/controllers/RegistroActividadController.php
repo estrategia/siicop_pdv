@@ -18,10 +18,10 @@ class RegistroActividadController extends Controller {
                 Yii::app()->end();
             }
             
-            /*if (!Yii::app()->user->checkAccess('PuntoDeVenta_RegistroActividad_ver')) {
+            if (!Yii::app()->user->checkAccess('PuntoDeVenta_RegistroActividad_ver')) {
                 echo CJSON::encode(array('result' => 'error', 'response' => 'Error: 101 => ' . Yii::app()->params['accessError']));
                 Yii::app()->end();
-            }*/
+            }
             
             $pk = Yii::app()->getRequest()->getPost('registro', null);
 
