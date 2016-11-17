@@ -1,0 +1,65 @@
+.form-search .row-fluid .controls-inline{
+    display: inline;
+    width: auto;
+}
+
+.space {
+    height: 20px;
+}
+
+/*
+#advancedsearch-btn.btn{
+    margin-top: 10px;
+}
+
+#advancedsearch-form form{
+    width: 100%;
+    padding: 0;
+    margin: 0 auto;
+}
+
+#advancedsearch-form form .form-total .form-column{
+    display: inline;
+}
+
+#advancedsearch-form form .form-total .form-column .form-group{
+    display: inline;
+    float: left;
+    width: 32%;
+}
+
+#advancedsearch-form form .form-actions{
+    display: block;
+    clear: both;
+}
+*/
+.row-fluid-panel{
+    width: 100%;
+    margin: 0 auto;
+}
+
+.row-fluid-panel a{
+    display: inline;
+    float: left;
+    margin-left: 0.5%;
+    width: 24%;
+}
+
+.panel .panel-heading div.block{
+    display: block;
+    overflow: hidden;
+}
+
+.panel .panel-heading.block{
+    /*overflow: hidden;*/
+}
+
+.panel .panel-heading .right{
+    display: inline;
+    float: right;
+}
+
+.panel .panel-heading .left{
+    display: inline;
+    float: left;
+}
