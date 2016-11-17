@@ -12,6 +12,8 @@
  * @property string $DireccionSede
  * @property string $TelefonoSede
  * @property integer $IndicativoTelefonoSede
+ * @property string $HorarioEntradaLunesAViernes
+ * @property string $HorarioSalidaLunesAViernes
  *
  * The followings are the available model relations:
  * @property PuntoVenta[] $puntosVenta
@@ -20,9 +22,19 @@
 class Sede extends CActiveRecord {
 
     private $_NombreGerenteOperativo = "NA";
+    private $_HorarioEntradaDate;
+    private $_HorarioSalidaDate;
 
     public function getNombreGerenteOperativo() {
         return $this->_NombreGerenteOperativo;
+    }
+    
+    public function getHorarioEntradaDate() {
+        return $this->_HorarioEntradaDate;
+    }
+    
+    public function getHorarioSalidaDate() {
+        return $this->_HorarioSalidaDate;
     }
 
     private function auxiliarData() {
@@ -41,6 +53,10 @@ class Sede extends CActiveRecord {
                 Yii::log($exc->getMessage() . "\n" . $exc->getTraceAsString(), CLogger::LEVEL_ERROR, 'application');
             }
         }
+        
+        $fecha = new DateTime;
+        $this->_HorarioEntradaDate = DateTime::createFromFormat('Y-m-d H:m:s', $fecha->format('Y-m-d') . " " . $this->HorarioEntradaLunesAViernes);
+        $this->_HorarioSalidaDate = DateTime::createFromFormat('Y-m-d H:m:s', $fecha->format('Y-m-d') . " " . $this->HorarioSalidaLunesAViernes);
     }
 
     public function afterFind() {
@@ -74,12 +90,47 @@ class Sede extends CActiveRecord {
             array('CedulaGerenteOperativo', 'length', 'max' => 20),
             // array('CedulaGerenteOperativo', 'default', 'value'=>null),
             array('DireccionSede', 'length', 'max' => 100),
+            
+            //array('HorarioEntradaLunesAViernes, HorarioSalidaLunesAViernes', 'safe'),
+            array('HorarioEntradaLunesAViernes, HorarioSalidaLunesAViernes', 'required', 'message' => '{attribute} no puede estar vac&iacute;o'),
+            array('HorarioEntradaLunesAViernes, HorarioSalidaLunesAViernes', 'date', 'format' => 'HH:mm'),
+            array('HorarioSalidaLunesAViernes', 'validateHour'),
+            
             array('CedulaGerenteOperativo', 'validateUserExist'),
             array('NombreSede', 'validateExist'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('IDSede, CodigoSede, NombreSede, CedulaGerenteOperativo, CelularSede, DireccionSede, TelefonoSede, IndicativoTelefonoSede', 'safe', 'on' => 'search'),
+            array('IDSede, CodigoSede, NombreSede, CedulaGerenteOperativo, CelularSede, DireccionSede, TelefonoSede, IndicativoTelefonoSede, HorarioEntradaLunesAViernes, HorarioSalidaLunesAViernes', 'safe', 'on' => 'search'),
         );
+    }
+    
+    public function validateHour($attribute, $params) {
+        if ($attribute == 'HorarioSalidaLunesAViernes') {
+            if ($this->HorarioEntradaLunesAViernes == $this->HorarioSalidaLunesAViernes) {
+                $this->addError($attribute, 'Hora salida debe ser mayor a hora de entrada');
+            } else {
+                $fecha = new DateTime();
+                $dia = $fecha->format('Y-m-d');
+                $fechaInicio = DateTime::createFromFormat('Y-m-d H:i:s', $dia . ' ' . $this->HorarioEntradaLunesAViernes . ':00');
+                $fechaFin = DateTime::createFromFormat('Y-m-d H:i:s', $dia . ' ' . $this->HorarioSalidaLunesAViernes . ':00');
+
+                if ($fechaInicio->format('i') != '00' && $fechaInicio->format('i') != '30') {
+                    $this->addError('HorarioEntradaLunesAViernes', 'Minutos debe ser 00 &oacute; 30');
+                }
+
+                if ($fechaFin->format('i') != '00' && $fechaFin->format('i') != '30') {
+                    $this->addError('HorarioSalidaLunesAViernes', 'Minutos debe ser 00 &oacute; 30');
+                }
+
+                $diff = $fechaInicio->diff($fechaFin);
+
+                if ($diff->invert == 1) {
+                    $this->addError('HorarioSalidaLunesAViernes', 'Hora salida debe ser mayor a hora de entrada');
+                }
+            }
+        }else{
+            $this->addError($attribute, $this->getAttributeLabel($attribute) . ' validaci&oacute;n incorrecta.');
+        }
     }
 
     /**
@@ -157,6 +208,8 @@ class Sede extends CActiveRecord {
             'DireccionSede' => 'Direcci&oacute;n',
             'TelefonoSede' => 'Tel&eacute;fono',
             'IndicativoTelefonoSede' => 'Indicativo tel&eacute;fono',
+            'HorarioEntradaLunesAViernes' => 'Entrada lunes-viernes',
+            'HorarioSalidaLunesAViernes' => 'Salida lunes-viernes',
         );
     }
 
@@ -201,6 +254,8 @@ class Sede extends CActiveRecord {
         $criteria->compare('DireccionSede', $this->DireccionSede, true);
         $criteria->compare('TelefonoSede', $this->TelefonoSede, true);
         $criteria->compare('IndicativoTelefonoSede', $this->IndicativoTelefonoSede, true);
+        $criteria->compare('HorarioEntradaLunesAViernes',$this->HorarioEntradaLunesAViernes,true);
+        $criteria->compare('HorarioSalidaLunesAViernes',$this->HorarioSalidaLunesAViernes,true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
