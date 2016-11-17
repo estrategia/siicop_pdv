@@ -76,7 +76,8 @@ class PuntoVenta extends CActiveRecord {
         'CedulaSubAdministrador' => 'NA',
         'IDSectorLRV' => 'NA',
     );
-    
+    private $_horariosEspecialesDia = array();
+    private $_horariosEspecialesRango = array();
     private $_oldAttributes = array();
 
     public function getNombreCentroCostos() {
@@ -94,7 +95,7 @@ class PuntoVenta extends CActiveRecord {
 
         return $this->_NombresRelaciones['IdCentroCostos'];
     }
-    
+
     public function getNombreCiudad() {
         if (!$this->isNewRecord && $this->CodigoCiudad !== null && $this->_NombresRelaciones['CodigoCiudad'] == "NA") {
             try {
@@ -152,7 +153,7 @@ class PuntoVenta extends CActiveRecord {
 
         return $this->_NombresRelaciones['CedulaSubAdministrador'];
     }
-    
+
     public function getNombreSectorLRV() {
         if (!$this->isNewRecord && $this->IDSectorLRV !== null && $this->_NombresRelaciones['IDSectorLRV'] == "NA") {
             try {
@@ -171,10 +172,10 @@ class PuntoVenta extends CActiveRecord {
 
         return $this->_NombresRelaciones['IDSectorLRV'];
     }
-    
-    private function resetAuxiliarData($oldAttributes, $newAttributes){
-        foreach ($this->_NombresRelaciones as $atributo => $nombre){
-            if($oldAttributes[$atributo] != $newAttributes[$atributo]){
+
+    private function resetAuxiliarData($oldAttributes, $newAttributes) {
+        foreach ($this->_NombresRelaciones as $atributo => $nombre) {
+            if ($oldAttributes[$atributo] != $newAttributes[$atributo]) {
                 $this->_NombresRelaciones[$atributo] = "NA";
             }
         }
@@ -187,14 +188,14 @@ class PuntoVenta extends CActiveRecord {
     }
 
     public function afterSave() {
-        if($this->isNewRecord){
+        if ($this->isNewRecord) {
             $this->_oldAttributes = $this->getAttributes();
         }
-        
+
         $this->resetAuxiliarData($this->_oldAttributes, $this->getAttributes());
         parent::afterSave();
     }
-    
+
     /**
      * @return string the associated database table name
      */
@@ -360,7 +361,7 @@ class PuntoVenta extends CActiveRecord {
      */
     public function relations() {
         return array(
-            'ciudad' => array(self::BELONGS_TO, 'Ciudad', '', 'on' => 'ciudad.CodCiudad = CodigoCiudad'),
+            'ciudad' => array(self::BELONGS_TO, 'Ciudad', '', 'on' => 'ciudad.CodCiudad = t.CodigoCiudad'),
             'aperturascierres' => array(self::HAS_MANY, 'AperturaCierrePuntoVenta', 'IDPuntoDeVenta'),
             'imagenes' => array(self::HAS_MANY, 'ImagenPuntoVenta', 'IDPuntoDeVenta'),
             'cedi' => array(self::BELONGS_TO, 'Cedi', 'IDCEDI'),
@@ -372,6 +373,7 @@ class PuntoVenta extends CActiveRecord {
             'horarioDomicilioDomingo' => array(self::BELONGS_TO, 'HorarioPuntoVenta', 'HorarioDomicilioDomingo'),
             'horarioDomicilioFestivo' => array(self::BELONGS_TO, 'HorarioPuntoVenta', 'HorarioDomicilioFestivo'),
             'horarioDomicilioEspecial' => array(self::BELONGS_TO, 'HorarioPuntoVenta', 'HorarioDomicilioEspecial'),
+            'horariosEspeciales' => array(self::HAS_MANY, 'HorarioEspecialPuntoVenta', 'IDPuntoDeVenta'),
             'sector' => array(self::BELONGS_TO, 'Sector', 'IDSector'),
             'sede' => array(self::BELONGS_TO, 'Sede', 'IDSede'),
             'tipoNegocio' => array(self::BELONGS_TO, 'TipoNegocio', 'IDTipoNegocio'),
@@ -500,22 +502,21 @@ class PuntoVenta extends CActiveRecord {
                 //$criteria->compare('LongitudGoogle', $palabra, true);
             }
         } else {
-			
-			//2015-11-26 - Se busca por el barrio de influencia
-			$ciudad = Yii::app()->getSession()->get('BusquedaCiudadPDV');
-			$barrio = Yii::app()->getSession()->get('BusquedaBarrioPDV');
-			
-			if(!is_null($ciudad) && $ciudad != "" && !is_null($barrio) && $barrio != "")
-			{
-				$criteria->distinct = true;
-				$criteria->join = 'INNER JOIN t_InfluenciaPuntoVenta i ON t.IdPuntoDeVenta = i.IdPuntoDeVenta 
+
+            //2015-11-26 - Se busca por el barrio de influencia
+            $ciudad = Yii::app()->getSession()->get('BusquedaCiudadPDV');
+            $barrio = Yii::app()->getSession()->get('BusquedaBarrioPDV');
+
+            if (!is_null($ciudad) && $ciudad != "" && !is_null($barrio) && $barrio != "") {
+                $criteria->distinct = true;
+                $criteria->join = 'INNER JOIN t_InfluenciaPuntoVenta i ON t.IdPuntoDeVenta = i.IdPuntoDeVenta 
 					INNER JOIN m_Barrio b ON i.IdBarrio = b.IdBarrio';
-				$criteria->addCondition('CodigoCiudad=:CodigoCiudad');
-				$criteria->params[':CodigoCiudad'] = $ciudad;
-				$criteria->addSearchCondition('b.NombreBarrio', $barrio);
-			}
-			//2015-11-26 - Fin
-			
+                $criteria->addCondition('CodigoCiudad=:CodigoCiudad');
+                $criteria->params[':CodigoCiudad'] = $ciudad;
+                $criteria->addSearchCondition('b.NombreBarrio', $barrio);
+            }
+            //2015-11-26 - Fin
+
             $criteria->compare('IDPuntoDeVenta', $this->IDPuntoDeVenta);
             $criteria->compare('IDZona', $this->IDZona);
             $criteria->compare('IDSede', $this->IDSede);
@@ -532,10 +533,8 @@ class PuntoVenta extends CActiveRecord {
             $criteria->compare('CodigoCiudad', $this->CodigoCiudad);
             $criteria->compare('Estado', $this->Estado);
             $criteria->compare('CSC', $this->CSC);
-            
             $criteria->compare('FechaCreacionRegistro', $this->FechaCreacionRegistro, true);
             $criteria->compare('FechaModificacionRegistro', $this->FechaModificacionRegistro, true);
-
 
             $criteria->compare('HorarioAperturaLunesASabado', $this->HorarioAperturaLunesASabado);
             $criteria->compare('HorarioAperturaDomingo', $this->HorarioAperturaDomingo);
@@ -590,48 +589,48 @@ class PuntoVenta extends CActiveRecord {
     }
 
     /*
-    public static function searchObject($condiciones) {
-        $campos = array(
-            'idpv' => 'IDPuntoDeVenta',
-            'codcomercialpv' => 'IDComercial',
-            'codcontablepv' => 'CodigoContable',
-            'centrocostopv' => 'IdCentroCostos',
-            'nompv' => 'NombrePuntoDeVenta',
-            'nomcortopv' => 'NombreCortoPuntoDeVenta',
-            'estadopv' => 'Estado',
-            'mailpv' => 'eMailPuntoDeVenta',
-            'estratopv' => 'EstratoPuntoDeVenta',
-            'cedulaadminpv' => 'CedulaAdministrador',
-            'cedulasubadminpv' => 'CedulaSubAdministrador',
-            'ipcamarapv' => 'IPCamara',
-            'ipservidorpv' => 'DireccionIPServidor',
-            'resolucionpv' => 'Resoluciones',
-            'codciudad' => 'ciudad.CodCiudad',
-            'nomciudad' => 'ciudad.NombreCiudad',
-            'codsede' => 'sede.CodigoSede',
-            'nomsede' => 'sede.NombreSede',
-            'nomzona' => 'zona.NombreZona',
-            'nomcedi' => 'cedi.NombreCEDI',
-            'codsector' => 'sector.CodigoSector',
-            'nomsector' => 'sector.NombreSector',
-            'idnegocio' => 'tipoNegocio.IDTipoNegocio',
-            'nomnegocio' => 'tipoNegocio.NombreTipoNegocio',
-            'nomubicacion' => 'ubicacion.NombreTipoNegocio'
-        );
+      public static function searchObject($condiciones) {
+      $campos = array(
+      'idpv' => 'IDPuntoDeVenta',
+      'codcomercialpv' => 'IDComercial',
+      'codcontablepv' => 'CodigoContable',
+      'centrocostopv' => 'IdCentroCostos',
+      'nompv' => 'NombrePuntoDeVenta',
+      'nomcortopv' => 'NombreCortoPuntoDeVenta',
+      'estadopv' => 'Estado',
+      'mailpv' => 'eMailPuntoDeVenta',
+      'estratopv' => 'EstratoPuntoDeVenta',
+      'cedulaadminpv' => 'CedulaAdministrador',
+      'cedulasubadminpv' => 'CedulaSubAdministrador',
+      'ipcamarapv' => 'IPCamara',
+      'ipservidorpv' => 'DireccionIPServidor',
+      'resolucionpv' => 'Resoluciones',
+      'codciudad' => 'ciudad.CodCiudad',
+      'nomciudad' => 'ciudad.NombreCiudad',
+      'codsede' => 'sede.CodigoSede',
+      'nomsede' => 'sede.NombreSede',
+      'nomzona' => 'zona.NombreZona',
+      'nomcedi' => 'cedi.NombreCEDI',
+      'codsector' => 'sector.CodigoSector',
+      'nomsector' => 'sector.NombreSector',
+      'idnegocio' => 'tipoNegocio.IDTipoNegocio',
+      'nomnegocio' => 'tipoNegocio.NombreTipoNegocio',
+      'nomubicacion' => 'ubicacion.NombreTipoNegocio'
+      );
 
-        $criteria = new CDbCriteria;
-        $criteria->join = 'INNER JOIN m_Ciudad as ciudad ON (t.CodigoCiudad = ciudad.CodCiudad)';
-        $criteria->with = array('sede', 'zona', 'cedi', 'sector', 'ubicacion', 'tipoNegocio'); //faltan servicios
+      $criteria = new CDbCriteria;
+      $criteria->join = 'INNER JOIN m_Ciudad as ciudad ON (t.CodigoCiudad = ciudad.CodCiudad)';
+      $criteria->with = array('sede', 'zona', 'cedi', 'sector', 'ubicacion', 'tipoNegocio'); //faltan servicios
 
-        foreach ($condiciones as $key => $value) {
-            if (isset($campos[$key])) {
-                $criteria->compare($campos[$key], $value, true);
-            }
-        }
+      foreach ($condiciones as $key => $value) {
+      if (isset($campos[$key])) {
+      $criteria->compare($campos[$key], $value, true);
+      }
+      }
 
-        return PuntoVenta::model()->findAll($criteria);
-    }
-    */
+      return PuntoVenta::model()->findAll($criteria);
+      }
+     */
 
     /**
      * Returns the static model of the specified AR class.
@@ -715,7 +714,6 @@ class PuntoVenta extends CActiveRecord {
             return "";
     }
 
-
     public static function searchObject($condiciones) {
         $campos = array(
             'idpv' => 'IDPuntoDeVenta',
@@ -748,13 +746,9 @@ class PuntoVenta extends CActiveRecord {
             'ordenar' => null
         );
 
-        if(empty($condiciones))
-        {
-            //return PuntoVenta::model()->findAll();
-            return PuntoVenta::model()->findAll(array('with'=>'ciudad'));
-        }
-        else
-        {
+        if (empty($condiciones)) {
+            return PuntoVenta::model()->findAll(array('with' => 'ciudad'));
+        } else {
 
             $criteria = new CDbCriteria;
             //$criteria->join = 'JOIN m_Ciudad as ciudad ON (t.CodigoCiudad = ciudad.CodCiudad)';
@@ -773,11 +767,11 @@ class PuntoVenta extends CActiveRecord {
                     } else {
                         $valor = $value;
                     }
-                    
+
                     $criteria->compare($campos[$key], $valor, $like, $condicional);
                 }
             }
-            if(isset($condiciones['ordenar']))
+            if (isset($condiciones['ordenar']))
                 $criteria->order = $condiciones['ordenar'];
             else
                 $criteria->order = 'IDPuntoDeVenta';
@@ -785,4 +779,36 @@ class PuntoVenta extends CActiveRecord {
             return PuntoVenta::model()->findAll($criteria);
         }
     }
+
+    public function getHorariosEspecialesDia() {
+        if (empty($this->_horariosEspecialesDia)) {
+            $this->horariosEspeciales();
+        }
+        
+        return $this->_horariosEspecialesDia;
+    }
+
+    public function getHorariosEspecialesRango() {
+        if (empty($this->_horariosEspecialesRango)) {
+            $this->horariosEspeciales();
+        }
+        
+        return $this->_horariosEspecialesRango;
+    }
+
+    private function horariosEspeciales() {
+        $this->_horariosEspecialesDia = array();
+        $this->_horariosEspecialesRango = array();
+        
+        foreach ($this->horariosEspeciales as $objHorarioPdv) {
+            if($objHorarioPdv->IdHorarioEspecialDia!=null){
+                $this->_horariosEspecialesDia[] = $objHorarioPdv->objHorarioEspecialDia;
+            }
+            
+            if($objHorarioPdv->IdHorarioEspecialRango!=null){
+                $this->_horariosEspecialesRango[] = $objHorarioPdv->objHorarioEspecialRango;
+            }
+        }
+    }
+
 }
