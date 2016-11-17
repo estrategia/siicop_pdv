@@ -4,10 +4,10 @@ class HorarioEspecialController extends Controller {
 
     public function actionIndex() {
 
-        /*if (!Yii::app()->user->checkAccess('PuntoDeVenta_HorarioEspecial_index')) {
+        if (!Yii::app()->user->checkAccess('PuntoDeVenta_HorarioEspecial_index')) {
             echo CJSON::encode(array('result' => 'error', 'response' => 'Error: 101 => ' . Yii::app()->params['accessError']));
             Yii::app()->end();
-        }*/
+        }
 
         $objEmpleado = Empleado::model()->find(array(
             'order' => 'idEmpleado DESC',

@@ -66,10 +66,10 @@ class ReporteHorariosController extends Controller {
             Yii::app()->end();
         }
 
-        /* if (!Yii::app()->user->checkAccess('Turnos_ReporteAnalista_index')) {
+        if (!Yii::app()->user->checkAccess('Turnos_ReporteHorarios_index')) {
           $this->render('//site/error', array('code' => '101', 'message' => Yii::app()->params['accessError']));
           Yii::app()->end();
-          } */
+        }
 
         $listSede = array();
 
@@ -119,34 +119,12 @@ class ReporteHorariosController extends Controller {
         ));
     }
 
-    public function actionTest() {
-
-
-        /*$listPuntosVenta = PuntoVenta::model()->findAll(array(
-            'with' => array('zona', 'sede', 'horariosEspeciales' => array('with' => array('objHorarioEspecialDia', 'objHorarioEspecialRango'))),
-            'condition' => '',
-        ));*/
-        
-        $dia = '1';
-        
-        $es24Hrs = Yii::app()->getModule('turnos')->horariosDiaSemanaEspecial['rango'][$dia]['24hr'];
-        
-        CVarDumper::dump($es24Hrs, 10, true);
-        
-        /*$horaInicio = Yii::app()->controller->module->horariosDiaSemanaEspecial['rango'][$dia]['inicio'];
-        $horaFin = Yii::app()->controller->module->horariosDiaSemanaEspecial['rango'][$dia]['fin'];*/
-        
-        
-                        
-    }
-    
-
     private function generarReporte(ReporteHorariosForm $model) {
 
-        /* if (!Yii::app()->user->checkAccess('Turnos_ReporteAnalista_index')) {
+        if (!Yii::app()->user->checkAccess('Turnos_ReporteHorarios_index')) {
           $this->render('//site/error', array('code' => '101', 'message' => Yii::app()->params['accessError']));
           Yii::app()->end();
-          } */
+        }
 
         $condition = "1=1";
 
