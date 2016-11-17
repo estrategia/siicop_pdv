@@ -80,50 +80,40 @@ class PuntoVentaController extends Controller {
             $model->Estado = 1;
             $model->CodCiudadLRV = $model->CodigoCiudad;
 
-            try
-			{
-				//2015-11-18 - Cuando se crea un PDV se ingresa el registro en m_Bodega automaticamente
-				$bodegaTr = new Bodega;
-				$transaction = $bodegaTr->dbConnection->beginTransaction();
-				$error_bod = false;
-				$msj_bod = "";
-				
-				$bodega = new Bodega;
-				$bodega->Codigo = $model->IDComercial;
-				$bodega->TipoBodega = "PDV";
-				
-				if($bodega->save())
-				{
-					if($model->save())
-					{
-						$transaction->commit();
-						Yii::app()->user->setFlash('success', "Informaci&oacute;n grabada!");
-						$this->redirect(array('actualizar', 'id' => $model->IDPuntoDeVenta, 'activeIni' => Yii::app()->controller->module->infoContacto));
-						Yii::app()->end();
-					}
-					else
-					{
-						$error_bod = true;
-						$msj_bod = "Informaci&oacute;n no grabada, verificar campos!";
-					}
-				}
-				else
-				{
-					$error_bod = true;
-					$msj_bod = "Informaci&oacute;n no grabada, no se pudo crear la bodega relacionada!";
-				}
-				
-				if($error_bod)
-				{
-					$transaction->rollback();
-					Yii::app()->user->setFlash('danger', $msj_bod);
-					$this->render('crear', array('model' => $model));
-					Yii::app()->end();
-				}
-				//2015-11-18 - Fin
-            }
-			catch (Exception $exc)
-			{
+            try {
+                //2015-11-18 - Cuando se crea un PDV se ingresa el registro en m_Bodega automaticamente
+                $bodegaTr = new Bodega;
+                $transaction = $bodegaTr->dbConnection->beginTransaction();
+                $error_bod = false;
+                $msj_bod = "";
+
+                $bodega = new Bodega;
+                $bodega->Codigo = $model->IDComercial;
+                $bodega->TipoBodega = "PDV";
+
+                if ($bodega->save()) {
+                    if ($model->save()) {
+                        $transaction->commit();
+                        Yii::app()->user->setFlash('success', "Informaci&oacute;n grabada!");
+                        $this->redirect(array('actualizar', 'id' => $model->IDPuntoDeVenta, 'activeIni' => Yii::app()->controller->module->infoContacto));
+                        Yii::app()->end();
+                    } else {
+                        $error_bod = true;
+                        $msj_bod = "Informaci&oacute;n no grabada, verificar campos!";
+                    }
+                } else {
+                    $error_bod = true;
+                    $msj_bod = "Informaci&oacute;n no grabada, no se pudo crear la bodega relacionada!";
+                }
+
+                if ($error_bod) {
+                    $transaction->rollback();
+                    Yii::app()->user->setFlash('danger', $msj_bod);
+                    $this->render('crear', array('model' => $model));
+                    Yii::app()->end();
+                }
+                //2015-11-18 - Fin
+            } catch (Exception $exc) {
                 Yii::log($exc->getMessage() . "\n" . $exc->getTraceAsString(), CLogger::LEVEL_ERROR, 'application');
                 Yii::app()->user->setFlash('danger', "Error al grabar informaci&oacute;n. Intente de nuevo!." . $exc->getMessage());
                 $this->render('crear', array(
@@ -157,6 +147,12 @@ class PuntoVentaController extends Controller {
         }
 
         $model = $this->loadModel($id);
+        
+        $zona = Zona::model()->find(array(
+            'with' => array('puntosVenta' => array('joinType' => 'INNER JOIN')),
+            'condition' => '(CedulaDirectorZona=:cedula OR CedulaAuxiliarZona=:cedula) AND puntosVenta.IDPuntoDeVenta=:pdv',
+            'params' => array(':cedula' => Yii::app()->user->name, ':pdv' => $id)
+        ));
 
         $telefonos = new TelefonosPuntoVenta('search');
         $telefonos->unsetAttributes();
@@ -301,7 +297,8 @@ class PuntoVentaController extends Controller {
                             'barrioDataProvider' => $barrioDataProvider,
                             'competencia' => $competencia,
                             'consulta' => false,
-                            'active' => $tabSiguiente
+                            'active' => $tabSiguiente,
+                            'zona' => $zona
                         ));
                         Yii::app()->end();
                     } else {
@@ -318,7 +315,8 @@ class PuntoVentaController extends Controller {
                             'barrioDataProvider' => $barrioDataProvider,
                             'competencia' => $competencia,
                             'consulta' => false,
-                            'active' => $info
+                            'active' => $info,
+                            'zona' => $zona
                         ));
                         Yii::app()->end();
                     }
@@ -338,7 +336,8 @@ class PuntoVentaController extends Controller {
                         'barrioDataProvider' => $barrioDataProvider,
                         'competencia' => $competencia,
                         'consulta' => false,
-                        'active' => $info
+                        'active' => $info,
+                        'zona' => $zona
                     ));
                     Yii::app()->end();
                 }
@@ -355,7 +354,8 @@ class PuntoVentaController extends Controller {
                     'barrioDataProvider' => $barrioDataProvider,
                     'competencia' => $competencia,
                     'consulta' => false,
-                    'active' => Yii::app()->controller->module->infoBasica
+                    'active' => Yii::app()->controller->module->infoBasica,
+                    'zona' => $zona
                 ));
             }
         } else {
@@ -376,7 +376,8 @@ class PuntoVentaController extends Controller {
                 'barrioDataProvider' => $barrioDataProvider,
                 'competencia' => $competencia,
                 'consulta' => false,
-                'active' => $activeIni
+                'active' => $activeIni,
+                'zona' => $zona
             ));
         }
     }
@@ -490,7 +491,7 @@ class PuntoVentaController extends Controller {
 
         if (isset($_POST['tab_siguiente']))
             $tabSiguiente = $_POST['tab_siguiente'];
-
+        
         $this->render('actualizar', array(
             'model' => $model,
             'telefonos' => $telefonos,
@@ -503,7 +504,8 @@ class PuntoVentaController extends Controller {
             'barrioDataProvider' => $barrioDataProvider,
             'competencia' => $competencia,
             'consulta' => true,
-            'active' => $tabSiguiente
+            'active' => $tabSiguiente,
+            'zona' => null,
         ));
     }
     
@@ -671,8 +673,8 @@ class PuntoVentaController extends Controller {
         if (isset($_GET['excel'])) {
             $model = null;
 
-            if (Yii::app()->session[Yii::app()->controller->module->sessionModelPVExport] !== null)
-                $model = Yii::app()->session[Yii::app()->controller->module->sessionModelPVExport];
+            if (Yii::app()->session[Yii::app()->controller->module->session['modelPdvExport']] !== null)
+                $model = Yii::app()->session[Yii::app()->controller->module->session['modelPdvExport']];
 
             $dataProvider = null;
 
@@ -711,7 +713,7 @@ class PuntoVentaController extends Controller {
 			}
 			//2015-11-26 - Fin
 
-            Yii::app()->session[Yii::app()->controller->module->sessionModelPVExport] = $model;
+            Yii::app()->session[Yii::app()->controller->module->session['modelPdvExport']] = $model;
             $this->render('admin', array(
                 'model' => $model,
             ));
