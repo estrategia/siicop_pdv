@@ -74,6 +74,8 @@ $this->widget('zii.widgets.grid.CGridView', array(
     'columns' => array(
         'CodigoSede',
         'NombreSede',
+        'HorarioEntradaLunesAViernes',
+        'HorarioSalidaLunesAViernes',
         array(
             'header' => 'Gerente Operativo',
             'name' => 'CedulaGerenteOperativo',
