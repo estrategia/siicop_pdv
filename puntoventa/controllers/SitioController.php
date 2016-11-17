@@ -12,10 +12,10 @@ class SitioController extends Controller {
             Yii::app()->end();
         }
 
-        /*if (!Yii::app()->user->checkAccess('puntoventa_sitio_index')) {
+        if (!Yii::app()->user->checkAccess('puntoventa_sitio_index')) {
             $this->render('/sitio/erroracceso', array('error' => Yii::app()->params->accessError));
             Yii::app()->end();
-        }*/
+        }
 
         $this->render('index');
     }
@@ -31,10 +31,10 @@ class SitioController extends Controller {
             Yii::app()->end();
         }
 
-        /*if (!Yii::app()->user->checkAccess('puntoventa_sitio_tablas')) {
+        if (!Yii::app()->user->checkAccess('puntoventa_sitio_tablas')) {
             $this->render('/sitio/erroracceso', array('error' => Yii::app()->params->accessError));
             Yii::app()->end();
-        }*/
+        }
         
         $this->render('tablas');
     }

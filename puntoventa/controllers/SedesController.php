@@ -115,7 +115,7 @@ class SedesController extends Controller {
                     echo CJSON::encode(array('result' => 'error', 'response' => 'Error al cargar datos de sede'));
                     Yii::app()->end();
                 }
-            } else if ($_POST['Sede']) {
+            } else if (isset($_POST['Sede'])) {
                 $form = new Sede('update');
                 $form->attributes = $_POST['Sede'];
 
@@ -128,6 +128,9 @@ class SedesController extends Controller {
                     $model->DireccionSede = $form->DireccionSede;
                     $model->TelefonoSede = $form->TelefonoSede;
                     $model->IndicativoTelefonoSede = $form->IndicativoTelefonoSede;
+                    $model->HorarioEntradaLunesAViernes = $form->HorarioEntradaLunesAViernes;
+                    $model->HorarioSalidaLunesAViernes = $form->HorarioSalidaLunesAViernes;
+                    
 
                     if ($model->validate()) {
                         $model->save();
